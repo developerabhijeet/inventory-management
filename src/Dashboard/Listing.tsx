@@ -1,132 +1,90 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import Header from './Header';
-import Table from './Table';
-import Widgets from './Widgets';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import Header from "./Header";
+import Table from "./Table";
+import Widgets from "./Widgets";
+import { dummyProducts } from "../utils/constants";
+import { WidgetProps } from "../types/widget.types";
+import { Product } from "../types/product.types";
+import { transformProductData } from "../utils/transform";
 
-interface Product {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  category: string;
-  isDisabled: boolean;
-}
-const dummyProducts: Product[] = [
-  {
-    id: 1,
-    name: "Bluetooth Headset",
-    category: "Electronics",
-    price: 25,
-    quantity: 5,
-    isDisabled: false,
-  },
-  {
-    id: 2,
-    name: "Edifier M34560 Speaker",
-    category: "Electronics",
-    price: 35,
-    quantity: 0,
-    isDisabled: false,
-  },
-  {
-    id: 3,
-    name: "Sony 4K 55-inch Ultra TV",
-    category: "Electronics",
-    price: 800,
-    quantity: 2,
-    isDisabled: false,
-  },
-  {
-    id: 4,
-    name: "Samsung 55-inch TV",
-    category: "Electronics",
-    price: 500,
-    quantity: 10,
-    isDisabled: false,
-  },
-  {
-    id: 5,
-    name: "Samsung S24 Ultra",
-    category: "Phones",
-    price: 1200,
-    quantity: 3,
-    isDisabled: false,
-  },
-  {
-    id: 6,
-    name: "Apple iPhone 14 Pro",
-    category: "Phones",
-    price: 1500,
-    quantity: 0,
-    isDisabled: true,
-  },
-  {
-    id: 7,
-    name: "Logitech MX Master 3",
-    category: "Accessories",
-    price: 100,
-    quantity: 20,
-    isDisabled: false,
-  },
-  {
-    id: 8,
-    name: "Dell XPS 13 Laptop",
-    category: "Laptops",
-    price: 1200,
-    quantity: 5,
-    isDisabled: false,
-  },
-  {
-    id: 9,
-    name: "Apple MacBook Pro 16",
-    category: "Laptops",
-    price: 2500,
-    quantity: 2,
-    isDisabled: false,
-  },
-  {
-    id: 10,
-    name: "Sony Noise Cancelling Headphones",
-    category: "Accessories",
-    price: 300,
-    quantity: 15,
-    isDisabled: false,
-  },
-];
-
-
-
+/**
+ * The main component of the application. It fetches the data from the API,
+ * calculates the statistics, and renders the UI.
+ *
+ * @returns {JSX.Element} The rendered UI.
+ */
 const Listing = () => {
-  const [products, setProducts] = useState<Product[]>(dummyProducts);
+  const [products, setProducts] = useState<Product[]>([]);
   const [isAdmin, setIsAdmin] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  const columns = [
-    "Name", "Category", "Price", "Quantity", "value", "Actions"
-  ]
-  // Fetch data from the API
-  // useEffect(() => {
-  //   axios
-  //     .get('https://dev-0tf0hinghgjl39z.api.raw-labs.com/inventory')
-  //     .then((response) => {
-  //       setProducts(response.data);
-  //     })
-  //     .catch((error) => console.error(error));
-  // }, []);
+  const columns = ["Name", "Category", "Price", "Quantity", "value", "Actions"];
 
-  // Calculate statistics
+  /**
+   * Fetch data from the API.
+   */
+  useEffect(() => {
+    setLoading(true);
+    axios
+      .get("https://dev-0tf0hinghgjl39z.api.raw-labs.com/inventory")
+      .then((response) => {
+        const productsWithDisable = response.data.map(
+          (product: Product, index: number) => ({
+            ...product,
+            id: index + 1,
+            isDisabled: false,
+          })
+        );
+        const transformApiData = (products: any[]) => {
+          return productsWithDisable.map((items: Product) =>
+            transformProductData(items)
+          );
+        };
+
+        setProducts(transformApiData);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error(error);
+        setLoading(false);
+        setProducts(dummyProducts);
+      })
+      .finally(() => {
+        setLoading(false);
+        setProducts(dummyProducts);
+      });
+  }, []);
+
+  /**
+   * Calculate statistics from the products.
+   *
+   * @returns {Object} The calculated statistics.
+   */
   const calculateStats = () => {
     const totalProducts = products.length;
-    const totalStoreValue = products.reduce((sum, product) => sum + product.price * product.quantity, 0);
-    const outOfStock = products.filter((product) => product.quantity === 0).length;
-    const categories = new Set(products.map((product) => product.category)).size;
+    const totalStoreValue = products.reduce(
+      (sum, product) => sum + product.price * product.quantity,
+      0
+    );
+    const outOfStock = products.filter(
+      (product) => product.quantity === 0
+    ).length;
+    const categories = new Set(products.map((product) => product.category))
+      .size;
 
     return { totalProducts, totalStoreValue, outOfStock, categories };
   };
 
-  const { totalProducts, totalStoreValue, outOfStock, categories } = calculateStats();
+  const { totalProducts, totalStoreValue, outOfStock, categories } =
+    calculateStats();
 
-  // Handlers for admin actions
+  /**
+   * Handle edit action.
+   *
+   * @param {number} id The ID of the product to be edited.
+   * @param {Partial<Product>} updatedProduct The updated product data.
+   */
   const handleEdit = (id: number, updatedProduct: Partial<Product>) => {
     setProducts((prevProducts) =>
       prevProducts.map((product) =>
@@ -135,22 +93,33 @@ const Listing = () => {
     );
   };
 
+  /**
+   * Handle delete action.
+   *
+   * @param {number} id The ID of the product to be deleted.
+   */
   const handleDelete = (id: number) => {
-    setProducts((prevProducts) => prevProducts.filter((product) => product.id !== id));
+    console.log(id);
+    setProducts((prevProducts) =>
+      prevProducts.filter((product) => product.id !== id)
+    );
   };
 
+  /**
+   * Handle disable action.
+   *
+   * @param {number} id The ID of the product to be disabled.
+   */
   const handleDisable = (id: number) => {
     setProducts((prevProducts) =>
       prevProducts.map((product) =>
-        product.id === id ? { ...product, isDisabled: !product.isDisabled } : product
+        product.id === id
+          ? { ...product, isDisabled: !product.isDisabled }
+          : product
       )
     );
   };
 
-  interface WidgetProps {
-    title: string;
-    value: number | string;
-  }
   const widgetData: WidgetProps[] = [
     {
       title: "Total Products",
@@ -170,17 +139,27 @@ const Listing = () => {
     },
   ];
 
-
   return (
     <div className="bg-gray-900 text-white min-h-screen p-6">
       <Header isAdmin={isAdmin} setIsAdmin={setIsAdmin} />
+      {loading ? (
+        <p>Please wait you beautiful, We are Fetching the data for you...</p>
+      ) : (
+        <>
+          <Widgets widgetData={widgetData} />
 
-      <Widgets widgetData={widgetData} />
-
-      <Table columns={columns} products={products} isAdmin={isAdmin} />
-
+          <Table
+            columns={columns}
+            products={products}
+            isAdmin={isAdmin}
+            handleDelete={handleDelete}
+            handleDisable={handleDisable}
+            handleEdit={handleEdit}
+          />
+        </>
+      )}
     </div>
   );
-}
+};
 
-export default Listing
+export default Listing;

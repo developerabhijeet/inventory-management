@@ -1,16 +1,17 @@
-import React from 'react'
+import React from "react";
 
 interface HeaderProps {
   isAdmin: boolean;
   setIsAdmin: (isAdmin: boolean) => void;
 }
 const Header = ({ isAdmin, setIsAdmin }: HeaderProps) => {
-
   return (
     <header className="flex justify-between items-center mb-4">
       <h1 className="text-2xl font-bold">Inventory Management</h1>
       <div className="flex items-center space-x-2">
-        <span className="text-gray-700 font-medium">{isAdmin ? 'Admin' : 'User'}</span>
+        <span className="text-gray-700 font-medium">
+          {isAdmin ? "Admin" : "User"}
+        </span>
         <label className="relative inline-flex items-center cursor-pointer">
           <input
             type="checkbox"
@@ -26,7 +27,7 @@ const Header = ({ isAdmin, setIsAdmin }: HeaderProps) => {
         </label>
       </div>
     </header>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;
