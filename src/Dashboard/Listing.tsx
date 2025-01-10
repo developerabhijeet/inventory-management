@@ -52,7 +52,6 @@ const Listing = () => {
       })
       .finally(() => {
         setLoading(false);
-        setProducts(dummyProducts);
       });
   }, []);
 
