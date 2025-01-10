@@ -7,7 +7,7 @@ interface HeaderProps {
 const Header = ({ isAdmin, setIsAdmin }: HeaderProps) => {
   return (
     <header className="flex justify-between items-center mb-4">
-      <h1 className="text-2xl font-bold">Inventory Management</h1>
+      <h1 className="text-2xl font-bold">Inventory Stat</h1>
       <div className="flex items-center space-x-2">
         <span className="text-gray-700 font-medium">
           {isAdmin ? "Admin" : "User"}

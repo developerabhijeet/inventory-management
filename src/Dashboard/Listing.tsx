@@ -7,6 +7,12 @@ import { dummyProducts } from "../utils/constants";
 import { WidgetProps } from "../types/widget.types";
 import { Product } from "../types/product.types";
 import { transformProductData } from "../utils/transform";
+import {
+  FaShoppingCart,
+  FaSyncAlt,
+  FaCartArrowDown,
+  FaShapes,
+} from "react-icons/fa";
 
 /**
  * The main component of the application. It fetches the data from the API,
@@ -15,7 +21,7 @@ import { transformProductData } from "../utils/transform";
  * @returns {JSX.Element} The rendered UI.
  */
 const Listing = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>(dummyProducts);
   const [isAdmin, setIsAdmin] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -123,18 +129,22 @@ const Listing = () => {
     {
       title: "Total Products",
       value: totalProducts,
+      icons: <FaShoppingCart />,
     },
     {
       title: "Total Store Value",
       value: `$${totalStoreValue}`,
+      icons: <FaCartArrowDown />,
     },
     {
       title: "Out of Stock",
       value: outOfStock,
+      icons: <FaSyncAlt />,
     },
     {
       title: "No. of Categories",
       value: categories,
+      icons: <FaShapes />,
     },
   ];
 

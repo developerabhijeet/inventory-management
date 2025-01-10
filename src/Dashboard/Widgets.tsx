@@ -9,6 +9,7 @@ const Widgets = ({ widgetData }: { widgetData: WidgetProps[] }) => {
           className="bg-green-900 text-white p-6 rounded-lg shadow"
           key={index}
         >
+          <span className="text-3xl">{widget.icons}</span>
           <p className="text-lg font-bold">{widget.title}</p>
           <p className="text-2xl mt-2">{widget.value}</p>
         </div>
